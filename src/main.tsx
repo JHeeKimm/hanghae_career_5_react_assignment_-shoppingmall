@@ -4,20 +4,26 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import ReactDOM from 'react-dom/client';
 import { RouterProvider } from 'react-router-dom';
 import './index.css';
+import { useAuthListener } from './hooks/useAuthListener';
 
 const queryClient = new QueryClient();
 
 const isDevEnvironment = import.meta.env.DEV;
 
-const rootElement = document.getElementById('root');
-
-if (rootElement) {
-  ReactDOM.createRoot(rootElement).render(
+const App = () => {
+  useAuthListener();
+  return (
     <QueryClientProvider client={queryClient}>
       {isDevEnvironment && <ReactQueryDevtools />}
       <RouterProvider router={router} />
     </QueryClientProvider>
   );
+};
+
+const rootElement = document.getElementById('root');
+
+if (rootElement) {
+  ReactDOM.createRoot(rootElement).render(<App />);
 } else {
   console.error('Failed to find the root element.');
 }
