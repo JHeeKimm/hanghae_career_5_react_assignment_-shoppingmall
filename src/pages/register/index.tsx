@@ -9,7 +9,7 @@ import { pageRoutes } from '@/apiRoutes';
 import { EMAIL_PATTERN } from '@/constants';
 import { Layout, authStatusType } from '@/pages/common/components/Layout';
 
-import { useRegisterUser } from '@/mutations/useRegisterUser';
+import { useRegisterUser } from '@/lib/hooks/useRegisterUser';
 
 interface FormErrors {
   name?: string;

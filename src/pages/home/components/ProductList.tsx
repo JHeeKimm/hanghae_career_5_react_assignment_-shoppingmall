@@ -9,7 +9,7 @@ import { useAuthStore } from '@/store/useAuthStore';
 import { useCartStore } from '@/store/useCartStore';
 import { useProductStore } from '@/store/useProductStore';
 import { useFilterStore } from '@/store/useFilterStore';
-import { useLoadProducts } from '@/queries/useLoadProducts';
+import { useLoadProducts } from '@/lib/hooks/useLoadProducts';
 
 import { CartItem } from '@/types/cartType';
 import { ChevronDown, Plus } from 'lucide-react';

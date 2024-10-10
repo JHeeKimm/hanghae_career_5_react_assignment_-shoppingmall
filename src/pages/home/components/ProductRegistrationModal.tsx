@@ -18,7 +18,7 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { ALL_CATEGORY_ID, categories } from '@/constants';
 import { createNewProduct, initialProductState } from '@/helpers/product';
-import { useAddProduct } from '@/mutations/useAddProduct';
+import { useAddProduct } from '@/lib/hooks/useAddProduct';
 import { uploadImage } from '@/utils/imageUpload';
 import { ChangeEvent, useState } from 'react';
 
