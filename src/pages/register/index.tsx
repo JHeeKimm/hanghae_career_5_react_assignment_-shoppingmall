@@ -10,6 +10,7 @@ import { EMAIL_PATTERN } from '@/constants';
 import { Layout, authStatusType } from '@/pages/common/components/Layout';
 
 import { useRegisterUser } from '@/lib/hooks/useRegisterUser';
+import { useToastStore } from '@/store/useToastStore';
 
 interface FormErrors {
   name?: string;
@@ -19,7 +20,7 @@ interface FormErrors {
 
 export const RegisterPage: React.FC = () => {
   const navigate = useNavigate();
-
+  const { addToast } = useToastStore();
   const {
     mutate: registerUser,
     isSuccess,
@@ -57,7 +58,7 @@ export const RegisterPage: React.FC = () => {
     if (validateForm()) {
       try {
         registerUser({ email, password, name });
-        console.log('가입 성공!');
+        addToast('success', '회원가입에 성공했습니다.');
         navigate(pageRoutes.login);
       } catch (error) {
         console.error(

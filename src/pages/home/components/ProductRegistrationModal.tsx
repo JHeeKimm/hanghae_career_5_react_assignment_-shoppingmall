@@ -19,6 +19,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { ALL_CATEGORY_ID, categories } from '@/constants';
 import { createNewProduct, initialProductState } from '@/helpers/product';
 import { useAddProduct } from '@/lib/hooks/useAddProduct';
+import { useToastStore } from '@/store/useToastStore';
 import { uploadImage } from '@/utils/imageUpload';
 import { ChangeEvent, useState } from 'react';
 
@@ -38,6 +39,7 @@ export const ProductRegistrationModal: React.FC<
     isError,
     error,
   } = useAddProduct();
+  const { addToast } = useToastStore();
 
   const [product, setProduct] = useState<NewProductDTO>(initialProductState);
 
@@ -69,10 +71,15 @@ export const ProductRegistrationModal: React.FC<
 
       const newProduct = createNewProduct(product, imageUrl);
       await addProduct(newProduct);
+      addToast('success', '물품 등록에 성공했습니다.');
       onClose();
       onProductAdded();
     } catch (error) {
-      console.error('물품 등록에 실패했습니다.', error);
+      if (error instanceof Error) {
+        addToast('error', error.message);
+      } else {
+        addToast('error', '물품 등록에 실패했습니다.');
+      }
     }
   };
 

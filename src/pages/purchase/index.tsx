@@ -17,6 +17,7 @@ import { ShippingInformationForm } from '@/pages/purchase/components/ShippingInf
 import { useAuthStore } from '@/store/useAuthStore';
 import { useCartStore } from '@/store/useCartStore';
 import { usePurchaseStore } from '@/store/usePurchaseStore';
+import { useToastStore } from '@/store/useToastStore';
 
 export interface FormData {
   name: string;
@@ -32,7 +33,7 @@ export interface FormErrors {
 
 export const Purchase: React.FC = () => {
   const navigate = useNavigate();
-
+  const { addToast } = useToastStore();
   const { user } = useAuthStore();
   const { cart, resetCart } = useCartStore();
   const { isLoading, purchaseStart, purchaseSuccess, purchaseFailure } =
@@ -94,7 +95,7 @@ export const Purchase: React.FC = () => {
       if (user) {
         resetCart(user.uid);
       }
-      console.log('구매 성공!');
+      addToast('success', '물품 구매에 성공했습니다.');
       navigate(pageRoutes.main);
     } catch (err) {
       if (err instanceof Error) {

@@ -5,6 +5,7 @@ import ReactDOM from 'react-dom/client';
 import { RouterProvider } from 'react-router-dom';
 import './index.css';
 import { useAuthListener } from './hooks/useAuthListener';
+import Toast from './pages/common/components/Toast';
 
 const queryClient = new QueryClient();
 
@@ -14,6 +15,7 @@ const App = () => {
   useAuthListener();
   return (
     <QueryClientProvider client={queryClient}>
+      <Toast />
       {isDevEnvironment && <ReactQueryDevtools />}
       <RouterProvider router={router} />
     </QueryClientProvider>

@@ -12,6 +12,7 @@ import { EMAIL_PATTERN } from '@/constants';
 import { auth } from '@/firebase';
 import { Layout, authStatusType } from '@/pages/common/components/Layout';
 import { useAuthStore } from '@/store/useAuthStore';
+import { useToastStore } from '@/store/useToastStore';
 
 interface FormErrors {
   email?: string;
@@ -22,6 +23,7 @@ interface FormErrors {
 export const LoginPage = () => {
   const navigate = useNavigate();
   const { setIsLogin, setUser } = useAuthStore();
+  const { addToast } = useToastStore();
 
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
@@ -62,6 +64,7 @@ export const LoginPage = () => {
         Cookies.set('accessToken', token, { expires: 7 });
 
         setIsLogin(true);
+        addToast('success', '로그인에 성공했습니다.');
         if (user) {
           setUser({
             uid: user.uid,
