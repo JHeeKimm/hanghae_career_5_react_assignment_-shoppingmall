@@ -4,12 +4,11 @@ import { useNavigate } from 'react-router-dom';
 
 import { pageRoutes } from '@/apiRoutes';
 import { ApiErrorBoundary } from '@/pages/common/components/ApiErrorBoundary';
-import { logout } from '@/store/auth/authSlice';
-import { initCart } from '@/store/cart/cartSlice';
 
 import { Skeleton } from '@/components/ui/skeleton';
 import { useModal } from '@/hooks/useModal';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { useAuthStore } from '@/store/useAuthStore';
+import { useCartStore } from '@/store/useCartStore';
 import { CartButton } from './CartButton';
 import { ConfirmModal } from './ConfirmModal';
 import { LoginButton } from './LoginButton';
@@ -17,23 +16,22 @@ import { LogoutButton } from './LogoutButton';
 
 export const NavigationBar = () => {
   const navigate = useNavigate();
-  const dispatch = useAppDispatch();
   const { isOpen, openModal, closeModal } = useModal();
-  const { isLogin, user } = useAppSelector((state) => state.auth);
-  const { cart } = useAppSelector((state) => state.cart);
+  const { isLogin, user, logout } = useAuthStore();
+  const { cart, initCart } = useCartStore();
 
   useEffect(() => {
     if (isLogin && user && cart.length === 0) {
-      dispatch(initCart(user.uid));
+      initCart(user.uid);
     }
-  }, [isLogin, user, dispatch, cart.length]);
+  }, [isLogin, user, cart.length]);
 
   const handleLogout = () => {
     openModal();
   };
 
   const handleConfirmLogout = () => {
-    dispatch(logout());
+    logout();
     Cookies.remove('accessToken');
     closeModal();
   };
