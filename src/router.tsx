@@ -1,15 +1,27 @@
+import { lazy } from 'react';
 import { createBrowserRouter, Outlet } from 'react-router-dom';
 
 import { pageRoutes } from '@/apiRoutes';
-import { Cart } from '@/pages/cart';
 import { RootErrorBoundary } from '@/pages/common/components/RootErrorHandler';
 import { RootSuspense } from '@/pages/common/components/RootSuspense';
 import { ErrorPage } from '@/pages/error/components/ErrorPage';
 import { NotFoundPage } from '@/pages/error/components/NotFoundPage';
 import { Home } from '@/pages/home';
-import { LoginPage } from '@/pages/login';
-import { Purchase } from '@/pages/purchase';
-import { RegisterPage } from '@/pages/register';
+
+const Cart = lazy(() =>
+  import('@/pages/cart').then((module) => ({ default: module.Cart }))
+);
+const LoginPage = lazy(() =>
+  import('@/pages/login').then((module) => ({ default: module.LoginPage }))
+);
+const Purchase = lazy(() =>
+  import('@/pages/purchase').then((module) => ({ default: module.Purchase }))
+);
+const RegisterPage = lazy(() =>
+  import('@/pages/register').then((module) => ({
+    default: module.RegisterPage,
+  }))
+);
 
 const CommonLayout = () => (
   <RootErrorBoundary>
