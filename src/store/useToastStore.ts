@@ -1,6 +1,5 @@
 import { create } from 'zustand';
 import { ToastItemType } from '@/types/toastItemType';
-import { v4 as uuidv4 } from 'uuid';
 
 interface ToastState {
   toastList: ToastItemType[];
@@ -11,7 +10,7 @@ interface ToastState {
 export const useToastStore = create<ToastState>((set) => ({
   toastList: [],
   addToast: (type, message) => {
-    const id = uuidv4();
+    const id = new Date().toISOString();
     const newToast = { id, type, message };
     set((prev) => ({ ...prev, toastList: [...prev.toastList, newToast] }));
   },
