@@ -7,7 +7,6 @@ import { useModal } from '@/hooks/useModal';
 import { FirebaseIndexErrorModal } from '@/pages/error/components/FirebaseIndexErrorModal';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useCartStore } from '@/store/useCartStore';
-import { useProductStore } from '@/store/useProductStore';
 import { useFilterStore } from '@/store/useFilterStore';
 import { useLoadProducts } from '@/lib/hooks/useLoadProducts';
 
@@ -88,15 +87,6 @@ export const ProductList: React.FC<ProductListProps> = ({
     setCurrentPage(1);
     loadProductsData(true);
   };
-
-  const firstProductImage = data?.products[0].image;
-
-  useEffect(() => {
-    if (firstProductImage) {
-      const img = new Image();
-      img.src = firstProductImage;
-    }
-  }, [firstProductImage]);
 
   return (
     <>
