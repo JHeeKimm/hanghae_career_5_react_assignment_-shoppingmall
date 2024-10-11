@@ -12,7 +12,7 @@ import { useLoadProducts } from '@/lib/hooks/useLoadProducts';
 
 import { CartItem } from '@/types/cartType';
 import { ChevronDown, Plus } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ProductCardSkeleton } from '../skeletons/ProductCardSkeleton';
 import { EmptyProduct } from './EmptyProduct';
@@ -44,10 +44,13 @@ export const ProductList: React.FC<ProductListProps> = ({
     isInitial
   );
 
-  const loadProductsData = async (isInitial = false): Promise<void> => {
-    const page = isInitial ? 1 : currentPage + 1;
-    setCurrentPage(page);
-  };
+  const loadProductsData = useCallback(
+    async (isInitial = false): Promise<void> => {
+      const page = isInitial ? 1 : currentPage + 1;
+      setCurrentPage(page);
+    },
+    [currentPage]
+  );
 
   if (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
@@ -63,30 +66,36 @@ export const ProductList: React.FC<ProductListProps> = ({
     loadProductsData(true);
   }, [filter]);
 
-  const handleCartAction = (product: IProduct): void => {
-    if (isLogin && user) {
-      const cartItem: CartItem = { ...product, count: 1 };
-      addCartItem(cartItem, user.uid, 1);
-      console.log(`${product.title} 상품이 \n장바구니에 담겼습니다.`);
-    } else {
-      navigate(pageRoutes.login);
-    }
-  };
+  const handleCartAction = useCallback(
+    (product: IProduct): void => {
+      if (isLogin && user) {
+        const cartItem: CartItem = { ...product, count: 1 };
+        addCartItem(cartItem, user.uid, 1);
+        console.log(`${product.title} 상품이 \n장바구니에 담겼습니다.`);
+      } else {
+        navigate(pageRoutes.login);
+      }
+    },
+    [isLogin, user, addCartItem, navigate]
+  );
 
-  const handlePurchaseAction = (product: IProduct): void => {
-    if (isLogin && user) {
-      const cartItem: CartItem = { ...product, count: 1 };
-      addCartItem(cartItem, user.uid, 1);
-      navigate(pageRoutes.cart);
-    } else {
-      navigate(pageRoutes.login);
-    }
-  };
+  const handlePurchaseAction = useCallback(
+    (product: IProduct): void => {
+      if (isLogin && user) {
+        const cartItem: CartItem = { ...product, count: 1 };
+        addCartItem(cartItem, user.uid, 1);
+        navigate(pageRoutes.cart);
+      } else {
+        navigate(pageRoutes.login);
+      }
+    },
+    [isLogin, user, addCartItem, navigate]
+  );
 
-  const handleProductAdded = (): void => {
+  const handleProductAdded = useCallback((): void => {
     setCurrentPage(1);
     loadProductsData(true);
-  };
+  }, [loadProductsData]);
 
   return (
     <>

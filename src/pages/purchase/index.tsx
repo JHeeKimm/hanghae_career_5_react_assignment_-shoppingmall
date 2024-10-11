@@ -1,5 +1,5 @@
 import { Loader2 } from 'lucide-react';
-import React, { useEffect, useState } from 'react';
+import React, { useMemo, useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { Button } from '@/components/ui/button';
@@ -46,70 +46,82 @@ export const Purchase: React.FC = () => {
     requests: '',
     payment: 'accountTransfer',
   });
-
   const [errors, setErrors] = useState<FormErrors>({
     phone: '',
   });
 
-  const [isFormValid, setIsFormValid] = useState<boolean>(false);
-
-  useEffect(() => {
+  const isFormValid = useMemo(() => {
     const { address, phone } = formData;
     const isPhoneValid = PHONE_PATTERN.test(phone);
-    setIsFormValid(address.trim() !== '' && isPhoneValid);
+    return address.trim() !== '' && isPhoneValid;
   }, [formData]);
 
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+  const handleInputChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      const { name, value } = e.target;
+      setFormData((prev) => ({ ...prev, [name]: value }));
 
-    if (name === 'phone') {
-      if (!PHONE_PATTERN.test(value) && value !== '') {
-        setErrors((prev) => ({
-          ...prev,
-          phone: '-를 포함한 휴대폰 번호만 가능합니다',
-        }));
-      } else {
-        setErrors((prev) => ({ ...prev, phone: '' }));
+      if (name === 'phone') {
+        if (!PHONE_PATTERN.test(value) && value !== '') {
+          setErrors((prev) => ({
+            ...prev,
+            phone: '-를 포함한 휴대폰 번호만 가능합니다',
+          }));
+        } else {
+          setErrors((prev) => ({ ...prev, phone: '' }));
+        }
       }
-    }
-  };
+    },
+    [setFormData, setErrors]
+  );
 
-  const handleClickPurchase = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (!isFormValid || !user) return;
+  const handleClickPurchase = useCallback(
+    async (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+      if (!isFormValid || !user) return;
 
-    purchaseStart();
-    const purchaseData = {
-      ...formData,
-      totalAmount: 0,
-      paymentMethod: formData.payment,
-      shippingAddress: formData.address,
-    };
+      purchaseStart();
+      const purchaseData = {
+        ...formData,
+        totalAmount: 0,
+        paymentMethod: formData.payment,
+        shippingAddress: formData.address,
+      };
 
-    try {
-      await makePurchase(purchaseData, user.uid, cart);
-      purchaseSuccess();
-      if (user) {
-        resetCart(user.uid);
+      try {
+        await makePurchase(purchaseData, user.uid, cart);
+        purchaseSuccess();
+        if (user) {
+          resetCart(user.uid);
+        }
+        addToast('success', '물품 구매에 성공했습니다.');
+        navigate(pageRoutes.main);
+      } catch (err) {
+        if (err instanceof Error) {
+          purchaseFailure(err.message);
+          console.error(
+            '잠시 문제가 발생했습니다! 다시 시도해 주세요.',
+            err.message
+          );
+        } else {
+          purchaseFailure('알 수 없는 오류가 발생했습니다.');
+          console.error('잠시 문제가 발생했습니다! 다시 시도해 주세요.');
+        }
       }
-      addToast('success', '물품 구매에 성공했습니다.');
-      navigate(pageRoutes.main);
-    } catch (err) {
-      if (err instanceof Error) {
-        purchaseFailure(err.message);
-        console.error(
-          '잠시 문제가 발생했습니다! 다시 시도해 주세요.',
-          err.message
-        );
-      } else {
-        purchaseFailure('알 수 없는 오류가 발생했습니다.');
-        console.error('잠시 문제가 발생했습니다! 다시 시도해 주세요.');
-      }
-    }
-  };
+    },
+    [
+      isFormValid,
+      formData,
+      user,
+      cart,
+      purchaseStart,
+      purchaseSuccess,
+      purchaseFailure,
+      resetCart,
+      addToast,
+      navigate,
+    ]
+  );
 
   return (
     <Layout

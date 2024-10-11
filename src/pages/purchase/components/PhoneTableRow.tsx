@@ -2,7 +2,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { TableCell, TableRow } from '@/components/ui/table';
 import { Phone } from 'lucide-react';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 
 import { PHONE_PATTERN } from '@/constants';
 
@@ -14,16 +14,19 @@ interface PhoneTableRowProps {
 export const PhoneTableRow = ({ value, onChange }: PhoneTableRowProps) => {
   const [error, setError] = useState<string>('');
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newValue = e.target.value;
-    onChange(e);
+  const handleChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const newValue = e.target.value;
+      onChange(e);
 
-    if (!PHONE_PATTERN.test(newValue) && newValue !== '') {
-      setError('-를 포함한 휴대폰 번호만 가능합니다');
-    } else {
-      setError('');
-    }
-  };
+      if (!PHONE_PATTERN.test(newValue) && newValue !== '') {
+        setError('-를 포함한 휴대폰 번호만 가능합니다');
+      } else {
+        setError('');
+      }
+    },
+    [onChange, setError]
+  );
 
   return (
     <TableRow>
