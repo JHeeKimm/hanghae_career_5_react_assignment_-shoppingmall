@@ -23,7 +23,6 @@ export const useCartStore = create<CartState>((set, get) => ({
   totalCount: 0,
   totalPrice: 0,
   initCart: (userId) => {
-    // if (!userId) return;
     const prevCartItems = getCartFromLocalStorage(userId);
     const total = calculateTotal(prevCartItems);
     set(() => ({

@@ -5,9 +5,6 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 
-import { makePurchase } from '@/api/purchase';
-import { pageRoutes } from '@/apiRoutes';
-
 import { PHONE_PATTERN } from '@/constants';
 import { Layout, authStatusType } from '@/pages/common/components/Layout';
 import { ItemList } from '@/pages/purchase/components/ItemList';
@@ -16,8 +13,7 @@ import { ShippingInformationForm } from '@/pages/purchase/components/ShippingInf
 
 import { useAuthStore } from '@/store/useAuthStore';
 import { useCartStore } from '@/store/useCartStore';
-import { usePurchaseStore } from '@/store/usePurchaseStore';
-import { useToastStore } from '@/store/useToastStore';
+import { useMakePurchase } from '@/lib/hooks/useMakePurchase';
 
 export interface FormData {
   name: string;
@@ -33,11 +29,8 @@ export interface FormErrors {
 
 export const Purchase: React.FC = () => {
   const navigate = useNavigate();
-  const { addToast } = useToastStore();
   const { user } = useAuthStore();
-  const { cart, resetCart } = useCartStore();
-  const { isLoading, purchaseStart, purchaseSuccess, purchaseFailure } =
-    usePurchaseStore();
+  const { cart, initCart } = useCartStore();
 
   const [formData, setFormData] = useState<FormData>({
     name: user?.displayName ?? '',
@@ -75,52 +68,29 @@ export const Purchase: React.FC = () => {
     [setFormData, setErrors]
   );
 
+  useEffect(() => {
+    if (user?.uid) {
+      initCart(user.uid);
+    }
+  }, [user, initCart]);
+
+  const { mutate: makePurchaseMutation, isPending: isLoading } =
+    useMakePurchase();
+
   const handleClickPurchase = useCallback(
     async (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
       if (!isFormValid || !user) return;
 
-      purchaseStart();
       const purchaseData = {
         ...formData,
         totalAmount: 0,
         paymentMethod: formData.payment,
         shippingAddress: formData.address,
       };
-
-      try {
-        await makePurchase(purchaseData, user.uid, cart);
-        purchaseSuccess();
-        if (user) {
-          resetCart(user.uid);
-        }
-        addToast('success', '물품 구매에 성공했습니다.');
-        navigate(pageRoutes.main);
-      } catch (err) {
-        if (err instanceof Error) {
-          purchaseFailure(err.message);
-          console.error(
-            '잠시 문제가 발생했습니다! 다시 시도해 주세요.',
-            err.message
-          );
-        } else {
-          purchaseFailure('알 수 없는 오류가 발생했습니다.');
-          console.error('잠시 문제가 발생했습니다! 다시 시도해 주세요.');
-        }
-      }
+      makePurchaseMutation({ purchaseData, userId: user.uid, cartData: cart });
     },
-    [
-      isFormValid,
-      formData,
-      user,
-      cart,
-      purchaseStart,
-      purchaseSuccess,
-      purchaseFailure,
-      resetCart,
-      addToast,
-      navigate,
-    ]
+    [isFormValid, formData, user, cart]
   );
 
   return (
