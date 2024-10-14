@@ -4,7 +4,6 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import ReactDOM from 'react-dom/client';
 import { RouterProvider } from 'react-router-dom';
 import './index.css';
-import { useAuthListener } from './hooks/useAuthListener';
 import Toast from './pages/common/components/Toast';
 
 const queryClient = new QueryClient();
@@ -12,7 +11,6 @@ const queryClient = new QueryClient();
 const isDevEnvironment = import.meta.env.DEV;
 
 const App = () => {
-  useAuthListener();
   return (
     <QueryClientProvider client={queryClient}>
       <Toast />

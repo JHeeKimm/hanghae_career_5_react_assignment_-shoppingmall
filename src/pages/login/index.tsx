@@ -1,18 +1,14 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { signInWithEmailAndPassword } from 'firebase/auth';
-import Cookies from 'js-cookie';
 import { Lock, Mail } from 'lucide-react';
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { pageRoutes } from '@/apiRoutes';
 import { EMAIL_PATTERN } from '@/constants';
-import { auth } from '@/firebase';
 import { Layout, authStatusType } from '@/pages/common/components/Layout';
-import { useAuthStore } from '@/store/useAuthStore';
-import { useToastStore } from '@/store/useToastStore';
+import { useLogin } from '@/lib/hooks/useLogin';
 
 interface FormErrors {
   email?: string;
@@ -22,16 +18,17 @@ interface FormErrors {
 
 export const LoginPage = () => {
   const navigate = useNavigate();
-  const { setIsLogin, setUser } = useAuthStore();
-  const { addToast } = useToastStore();
+  const { mutate: login, isPending } = useLogin();
+  // const { setIsLogin, setUser } = useAuthStore();
+  // const { addToast } = useToastStore();
 
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [errors, setErrors] = useState<FormErrors>({});
 
-  const handleClickRegister = () => {
+  const handleClickRegister = useCallback(() => {
     navigate(pageRoutes.register);
-  };
+  }, [navigate]);
 
   const validateForm = () => {
     let formErrors: FormErrors = {};
@@ -52,37 +49,7 @@ export const LoginPage = () => {
   ) => {
     e.preventDefault();
     if (validateForm()) {
-      try {
-        const userCredential = await signInWithEmailAndPassword(
-          auth,
-          email,
-          password
-        );
-        const user = userCredential.user;
-        const token = await user.getIdToken();
-
-        Cookies.set('accessToken', token, { expires: 7 });
-
-        setIsLogin(true);
-        addToast('success', '로그인에 성공했습니다.');
-        if (user) {
-          setUser({
-            uid: user.uid,
-            email: user.email ?? '',
-            displayName: user.displayName ?? '',
-          });
-        }
-
-        navigate(pageRoutes.main);
-      } catch (error) {
-        console.error(
-          '로그인에 실패했습니다. 이메일과 비밀번호를 확인해주세요.',
-          error
-        );
-        setErrors({
-          form: '로그인에 실패했습니다. 이메일과 비밀번호를 확인해주세요.',
-        });
-      }
+      login({ email, password });
     }
   };
 
@@ -123,8 +90,13 @@ export const LoginPage = () => {
             )}
           </div>
           {errors.form && <p className="text-sm text-red-500">{errors.form}</p>}
-          <Button type="submit" className="w-full" aria-label="로그인">
-            로그인
+          <Button
+            type="submit"
+            className="w-full"
+            aria-label="로그인"
+            disabled={isPending}
+          >
+            {isPending ? '로그인 중...' : '로그인'}
           </Button>
         </form>
         <Button

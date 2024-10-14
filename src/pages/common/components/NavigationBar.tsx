@@ -1,4 +1,5 @@
 import Cookies from 'js-cookie';
+import { auth } from '@/firebase';
 import { Suspense, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -17,8 +18,12 @@ import { LogoutButton } from './LogoutButton';
 export const NavigationBar = () => {
   const navigate = useNavigate();
   const { isOpen, openModal, closeModal } = useModal();
-  const { isLogin, user, logout } = useAuthStore();
+  const { isLogin, user, logout, checkLoginStatus } = useAuthStore();
   const { cart, initCart } = useCartStore();
+
+  useEffect(() => {
+    checkLoginStatus();
+  }, [checkLoginStatus]);
 
   useEffect(() => {
     if (isLogin && user && cart.length === 0) {

@@ -1,8 +1,17 @@
 import { auth, db } from '@/firebase';
 import { IUser } from '@/types/authType';
-import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
+import {
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  updateProfile,
+} from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
-import { RegisterUserReqDTO } from './dtos/authDTO';
+import {
+  RegisterUserReqDTO,
+  LoginRequestDTO,
+  LoginResponseDTO,
+} from './dtos/authDTO';
+import Cookies from 'js-cookie';
 
 export const registerUserAPI = async ({
   email,
@@ -28,4 +37,30 @@ export const registerUserAPI = async ({
     email: user.email!,
     displayName: name,
   };
+};
+
+export const loginAPI = async (
+  loginData: LoginRequestDTO
+): Promise<LoginResponseDTO> => {
+  try {
+    const { email, password } = loginData;
+    const userCredential = await signInWithEmailAndPassword(
+      auth,
+      email,
+      password
+    );
+    const user = userCredential.user;
+    const token = await user.getIdToken();
+
+    Cookies.set('accessToken', token, { expires: 7 });
+
+    return {
+      uid: user.uid,
+      email: user.email ?? '',
+      displayName: user.displayName ?? '',
+      accessToken: token,
+    };
+  } catch (error) {
+    throw new Error('로그인에 실패했습니다. 이메일과 비밀번호를 확인해주세요.');
+  }
 };
